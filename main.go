@@ -99,9 +99,12 @@ func main() {
 			Name:  "cleanup",
 			Usage: "Clean-up images",
 			Flags: []cli.Flag{
-			cli.StringFlag{
-			Name: "keep, k",
-			},
+				cli.StringFlag{
+				Name: "keep, k",
+				},
+				cli.BoolFlag{
+					Name: "dryrun, d",
+				},
 		},
 		Action: func(c *cli.Context) error {
 		return cleanUpImages(c)
