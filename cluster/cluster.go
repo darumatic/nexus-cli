@@ -66,7 +66,9 @@ func ListImages() (map[string][]string, error) {
 	if err != nil {
 		panic(err.Error())
 	}
+	fmt.Println("Gathering list of deployed pods")
 	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+	fmt.Printf("Nexus registry path:%s\n", "localhost:5000")
 
 	var containers = make(map[string][]string)
 
@@ -74,18 +76,21 @@ func ListImages() (map[string][]string, error) {
 		for _, container := range item.Spec.Containers {
 			if (strings.HasPrefix(container.Image, "localhost:5000")) {
 
-				//fmt.Println("Image:" + container.Image)
-
 				findRepoPattern := regexp.MustCompile(`(localhost:5000/)(.*):(.*)`)
 				repo := findRepoPattern.FindStringSubmatch(container.Image);
 				if (len((repo)) > 3) {
-					fmt.Println("Repo: " + repo[2])
-					fmt.Println("Tag: " + repo[3])
 					if (!StringInSlice(repo[3], containers[repo[2]])) {
 						containers[repo[2]] = append(containers[repo[2]], repo[3])
 					}
 				}
 			}
+		}
+	}
+	fmt.Println("List of deployed images from nexus registry")
+	for image := range containers {
+		fmt.Printf("Image: %s\n", image)
+		for tag := range containers[image] {
+			fmt.Printf("Tag: %s\n", containers[image][tag])
 		}
 	}
 	return containers, nil;

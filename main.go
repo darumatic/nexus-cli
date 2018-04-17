@@ -172,12 +172,18 @@ func cleanUpImages(c *cli.Context) error {
 		return cli.NewExitError(err.Error(), 1)
 	}
 
+	fmt.Printf("Performing clean up. Keeping last %d tags\n", keep)
 	for _, image := range storedImages {
+		fmt.Println("-------------------------------------")
+		fmt.Printf("Performing clean up for image %s\n", image)
 		tags, err := r.ListTagsByImage(image)
+
 		if err != nil {
 			return cli.NewExitError(err.Error(), 1)
 		}
+		fmt.Printf("Found %d tags - Keeping last %d tags \n", len(tags), keep)
 		if len(tags) >= keep {
+			deleteCount := 0
 			for _, tag := range tags[:len(tags)-keep] {
 				var deleteImageTag = false
 				tags, ok := deployedImages[image]
@@ -192,12 +198,14 @@ func cleanUpImages(c *cli.Context) error {
 				}
 
 				if (deleteImageTag) {
-					fmt.Printf("%s:%s image will be deleted ...\n", image, tag)
 					//r.DeleteImageByTag(image, tag)
+					fmt.Printf("%s:%s deleted\n", image, tag)
+					deleteCount++;
 				}
 			}
+			fmt.Printf("%d tags deleted\n", deleteCount)
 		} else {
-			fmt.Printf("Only %d storedImages are available\n", len(tags))
+			fmt.Printf("Not deleting any tags\n")
 		}
 	}
 	return nil;
