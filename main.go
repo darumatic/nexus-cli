@@ -155,7 +155,8 @@ func setNexusCredentials(c *cli.Context) error {
 }
 
 func cleanUpImages(c *cli.Context) error {
-	var keep = c.Int("keep")
+	var keep   = c.Int("keep")
+	var dryrun = c.Bool("dryrun")
 	r, err := registry.NewRegistry()
 	if err != nil {
 		return cli.NewExitError(err.Error(), 1)
@@ -198,7 +199,9 @@ func cleanUpImages(c *cli.Context) error {
 				}
 
 				if (deleteImageTag) {
-					//r.DeleteImageByTag(image, tag)
+					if (!dryrun) {
+						//r.DeleteImageByTag(image, tag)
+					}
 					fmt.Printf("%s:%s deleted\n", image, tag)
 					deleteCount++;
 				}
