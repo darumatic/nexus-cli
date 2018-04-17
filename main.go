@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"html/template"
 	"os"
-
-	"github.com/mlabouardy/nexus-cli/registry"
+	"./registry"
 	"github.com/urfave/cli"
+	"./cluster"
 )
 
 const (
@@ -95,6 +95,18 @@ func main() {
 				},
 			},
 		},
+		{
+			Name:  "cleanup",
+			Usage: "Clean-up images",
+			Flags: []cli.Flag{
+			cli.StringFlag{
+			Name: "keep, k",
+			},
+		},
+		Action: func(c *cli.Context) error {
+		return cleanUpImages(c)
+	},
+	},
 	}
 	app.CommandNotFound = func(c *cli.Context, command string) {
 		fmt.Fprintf(c.App.Writer, "Wrong command %q !", command)
@@ -140,6 +152,64 @@ func setNexusCredentials(c *cli.Context) error {
 		return cli.NewExitError(err.Error(), 1)
 	}
 	return nil
+}
+
+func cleanUpImages(c *cli.Context) error {
+	var keep = c.Int("keep")
+	r, err := registry.NewRegistry()
+	if err != nil {
+		return cli.NewExitError(err.Error(), 1)
+	}
+	//Lookup all storedImages in nexus
+	storedImages, err := r.ListImages()
+
+	if err != nil {
+		return cli.NewExitError(err.Error(), 1)
+	}
+	//Lookup all images deployed in K8 cluster
+	deployedImages, err := cluster.ListImages()
+	if err != nil {
+		return cli.NewExitError(err.Error(), 1)
+	}
+
+	for _, image := range storedImages {
+		tags, err := r.ListTagsByImage(image)
+		if err != nil {
+			return cli.NewExitError(err.Error(), 1)
+		}
+		if len(tags) >= keep {
+			for _, tag := range tags[:len(tags)-keep] {
+				var deleteImageTag = false
+				tags, ok := deployedImages[image]
+				if ok {
+				    if !contains(tags, tag) {
+						deleteImageTag = true
+					} else {
+						fmt.Printf("Not deleting image %s:%s it is currently deployed.\n", image, tag)
+					}
+				} else {
+					deleteImageTag = true
+				}
+
+				if (deleteImageTag) {
+					fmt.Printf("%s:%s image will be deleted ...\n", image, tag)
+					//r.DeleteImageByTag(image, tag)
+				}
+			}
+		} else {
+			fmt.Printf("Only %d storedImages are available\n", len(tags))
+		}
+	}
+	return nil;
+}
+
+func contains(intSlice []string, searchInt string) bool {
+	for _, value := range intSlice {
+		if value == searchInt {
+			return true
+		}
+	}
+	return false
 }
 
 func listImages(c *cli.Context) error {

@@ -8,6 +8,8 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
+	"strconv"
+	"sort"
 )
 
 const ACCEPT_HEADER = "application/vnd.docker.distribution.manifest.v2+json"
@@ -104,6 +106,35 @@ func (r Registry) ListTagsByImage(image string) ([]string, error) {
 
 	var imageTags ImageTags
 	json.NewDecoder(resp.Body).Decode(&imageTags)
+
+	var sortedTags []int
+	sortedTags = make([]int,0)
+
+	var nonNumericTags []string
+	nonNumericTags = make([]string,0)
+
+	for _, tag := range imageTags.Tags {
+		if intValue, err := strconv.Atoi(tag); err == nil {
+			sortedTags = append(sortedTags, intValue)
+		} else {
+			nonNumericTags = append(nonNumericTags, tag)
+		}
+	}
+	sort.Ints(sortedTags)
+
+	//Combine sorted and non sorted tags
+	var allTags []string
+	allTags = make([]string,0)
+
+	for _, tag := range sortedTags {
+		allTags = append(allTags, strconv.Itoa(tag))
+	}
+
+	for _, tag := range nonNumericTags {
+		allTags = append(allTags, tag)
+	}
+
+	imageTags.Tags = allTags
 
 	return imageTags.Tags, nil
 }
