@@ -72,7 +72,7 @@ func ListImages() (map[string][]string, error) {
 
 	for _, item := range pods.Items {
 		for _, container := range item.Spec.Containers {
-			if (strings.HasPrefix(container.Image, "localhost")) {
+			if (strings.HasPrefix(container.Image, "localhost:5000")) {
 
 				//fmt.Println("Image:" + container.Image)
 
