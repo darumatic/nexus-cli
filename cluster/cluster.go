@@ -23,13 +23,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"regexp"
+	"k8s.io/client-go/rest"
 )
 
 func StringInSlice(str string, list []string) bool {
@@ -41,24 +41,38 @@ func StringInSlice(str string, list []string) bool {
 	return false
 }
 
-func ListImages() (map[string][]string, error) {
-	var kubeconfig *string
+func ListImages(useKubeConfig bool) (map[string][]string, error) {
 
-	if home := homeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	var restConfig *rest.Config;
+
+	if (useKubeConfig) {
+		var kubeconfig *string
+
+		if home := homeDir(); home != "" {
+			kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+		} else {
+			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		}
+		flag.Parse()
+
+		// use the current context in kubeconfig
+		config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		if err != nil {
+			panic(err.Error())
+		}
+		restConfig = config;
 	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
-	flag.Parse()
 
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		panic(err.Error())
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			panic(err.Error())
+		}
+
+		restConfig = config;
 	}
 
 	// create the clientset
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -68,7 +82,7 @@ func ListImages() (map[string][]string, error) {
 	}
 	fmt.Println("Gathering list of deployed pods")
 	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
-	fmt.Printf("Nexus registry path:%s\n", "localhost:5000")
+	fmt.Printf("Nexus registry path: %s\n", "localhost:5000")
 
 	var containers = make(map[string][]string)
 

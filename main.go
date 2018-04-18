@@ -105,6 +105,9 @@ func main() {
 				cli.BoolFlag{
 					Name: "dryrun, d",
 				},
+				cli.BoolFlag{
+					Name: "kubeconfig, kc",
+				},
 		},
 		Action: func(c *cli.Context) error {
 		return cleanUpImages(c)
@@ -158,8 +161,11 @@ func setNexusCredentials(c *cli.Context) error {
 }
 
 func cleanUpImages(c *cli.Context) error {
-	var keep   = c.Int("keep")
-	var dryrun = c.Bool("dryrun")
+
+	var keep       = c.Int("keep")
+	var dryrun     = c.Bool("dryrun")
+	var kubeconfig = c.Bool("kubeconfig")
+
 	r, err := registry.NewRegistry()
 	if err != nil {
 		return cli.NewExitError(err.Error(), 1)
@@ -171,7 +177,7 @@ func cleanUpImages(c *cli.Context) error {
 		return cli.NewExitError(err.Error(), 1)
 	}
 	//Lookup all images deployed in K8 cluster
-	deployedImages, err := cluster.ListImages()
+	deployedImages, err := cluster.ListImages(kubeconfig)
 	if err != nil {
 		return cli.NewExitError(err.Error(), 1)
 	}

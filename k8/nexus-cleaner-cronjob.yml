@@ -1,0 +1,25 @@
+apiVersion: "batch/v2alpha1"
+kind: CronJob
+metadata:
+  name: nexus-cleaner
+  namespace: sdlc
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: nexus-cleaner
+              image: darumatic/nexus-cleaner:2.0
+              env:
+              - name: KEEP_LIMIT
+                value: "100"
+              volumeMounts:
+              - name: secret-volume
+                mountPath: /nexus/secret
+          volumes:
+          - name: secret-volume
+            secret:
+              secretName: nexus-cleaner
+          restartPolicy: OnFailure
