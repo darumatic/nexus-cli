@@ -209,7 +209,7 @@ func cleanUpImages(c *cli.Context) error {
 
 				if (deleteImageTag) {
 					if (!dryrun) {
-						//r.DeleteImageByTag(image, tag)
+						r.DeleteImageByTag(image, tag)
 					}
 					fmt.Printf("%s:%s deleted\n", image, tag)
 					deleteCount++;
