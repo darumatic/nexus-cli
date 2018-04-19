@@ -170,7 +170,7 @@ func cleanUpImages(c *cli.Context) error {
 	var kubeconfig   = c.Bool("kubeconfig")
 	var registryPath = c.String("registryPath")
 
-	if (registryPath == "") {
+	if registryPath == "" {
 		registryPath = "localhost:5000"
 	}
 

@@ -7,5 +7,5 @@ if [ ! -f /nexus/.credentials ]; then
 fi
 
 cd /nexus
-/nexus/nexus-cli cleanup -k $KEEP_LIMIT
+/nexus/nexus-cli cleanup -k $KEEP_LIMIT -reg $DOCKER_REGISTRY
 

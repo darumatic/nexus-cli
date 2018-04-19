@@ -91,7 +91,9 @@ func ListImages(useKubeConfig bool, registryPath string) (map[string][]string, e
 		for _, container := range item.Spec.Containers {
 			if (strings.HasPrefix(container.Image, registryPath)) {
 
-				findRepoPattern := regexp.MustCompile("`(" + registryPath + "/)(.*):(.*)`")
+				regExp := `(` + registryPath + `/)(.*):(.*)`
+
+				findRepoPattern := regexp.MustCompile(regExp)
 				repo := findRepoPattern.FindStringSubmatch(container.Image);
 				if (len((repo)) > 3) {
 					if (!StringInSlice(repo[3], containers[repo[2]])) {
