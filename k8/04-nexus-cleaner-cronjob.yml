@@ -5,6 +5,8 @@ metadata:
   namespace: sdlc
 spec:
   schedule: "*/1 * * * *"
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 10
   jobTemplate:
     spec:
       template:
@@ -15,7 +17,7 @@ spec:
               image: darumatic/nexus-cleaner:latest
               env:
               - name: KEEP_LIMIT
-                value: "100"
+                value: "800"
               volumeMounts:
               - name: secret-volume
                 mountPath: /nexus/secret
