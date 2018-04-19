@@ -41,7 +41,7 @@ func StringInSlice(str string, list []string) bool {
 	return false
 }
 
-func ListImages(useKubeConfig bool) (map[string][]string, error) {
+func ListImages(useKubeConfig bool, registryPath string) (map[string][]string, error) {
 
 	var restConfig *rest.Config;
 
@@ -80,17 +80,18 @@ func ListImages(useKubeConfig bool) (map[string][]string, error) {
 	if err != nil {
 		panic(err.Error())
 	}
+
 	fmt.Println("Gathering list of deployed pods")
 	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
-	fmt.Printf("Nexus registry path: %s\n", "localhost:5000")
+	fmt.Printf("Cluster Docker registry path: %s\n", registryPath)
 
 	var containers = make(map[string][]string)
 
 	for _, item := range pods.Items {
 		for _, container := range item.Spec.Containers {
-			if (strings.HasPrefix(container.Image, "localhost:5000")) {
+			if (strings.HasPrefix(container.Image, registryPath)) {
 
-				findRepoPattern := regexp.MustCompile(`(localhost:5000/)(.*):(.*)`)
+				findRepoPattern := regexp.MustCompile("`(" + registryPath + "/)(.*):(.*)`")
 				repo := findRepoPattern.FindStringSubmatch(container.Image);
 				if (len((repo)) > 3) {
 					if (!StringInSlice(repo[3], containers[repo[2]])) {

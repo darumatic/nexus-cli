@@ -108,6 +108,9 @@ func main() {
 				cli.BoolFlag{
 					Name: "kubeconfig, kc",
 				},
+				cli.StringFlag{
+					Name: "registryPath, reg",
+				},
 		},
 		Action: func(c *cli.Context) error {
 		return cleanUpImages(c)
@@ -162,9 +165,18 @@ func setNexusCredentials(c *cli.Context) error {
 
 func cleanUpImages(c *cli.Context) error {
 
-	var keep       = c.Int("keep")
-	var dryrun     = c.Bool("dryrun")
-	var kubeconfig = c.Bool("kubeconfig")
+	var keep         = c.Int("keep")
+	var dryrun       = c.Bool("dryrun")
+	var kubeconfig   = c.Bool("kubeconfig")
+	var registryPath = c.String("registryPath")
+
+	if (registryPath == "") {
+		registryPath = "localhost:5000"
+	}
+
+	if (keep == 0) {
+		keep = 200
+	}
 
 	r, err := registry.NewRegistry()
 	if err != nil {
@@ -177,7 +189,7 @@ func cleanUpImages(c *cli.Context) error {
 		return cli.NewExitError(err.Error(), 1)
 	}
 	//Lookup all images deployed in K8 cluster
-	deployedImages, err := cluster.ListImages(kubeconfig)
+	deployedImages, err := cluster.ListImages(kubeconfig, registryPath)
 	if err != nil {
 		return cli.NewExitError(err.Error(), 1)
 	}

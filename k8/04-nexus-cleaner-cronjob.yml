@@ -4,7 +4,7 @@ metadata:
   name: nexus-cleaner
   namespace: sdlc
 spec:
-  schedule: "* 6 * * *"
+  schedule: "*/1 * * * *"
   successfulJobsHistoryLimit: 10
   failedJobsHistoryLimit: 10
   concurrencyPolicy: Forbid
@@ -19,6 +19,8 @@ spec:
               env:
               - name: KEEP_LIMIT
                 value: "800"
+              - name: DOCKER_REGISTRY
+                value: "localhost:1234"
               volumeMounts:
               - name: secret-volume
                 mountPath: /nexus/secret
