@@ -15,7 +15,7 @@ spec:
           serviceAccountName: nexus-cleaner
           containers:
             - name: nexus-cleaner
-              image: darumatic/nexus-cleaner:latest
+              image: darumatic/nexus-cleaner:3.0
               env:
               - name: KEEP_LIMIT
                 value: "500"
