@@ -25,6 +25,6 @@ The cleaner is deployed into the sdlc namespace as a cronjob and requires the fo
 1. Run kubectl create -f ./k8/
 
 
-## How to check when the next cronjob runs?
+## How to check when the last cronjob ran?
 1. kubectl get cronjob -n sdlc 
 
