@@ -4,9 +4,10 @@ metadata:
   name: nexus-cleaner
   namespace: sdlc
 spec:
-  schedule: "*/1 * * * *"
+  schedule: "* 6 * * *"
   successfulJobsHistoryLimit: 10
   failedJobsHistoryLimit: 10
+  concurrencyPolicy: Forbid
   jobTemplate:
     spec:
       template:

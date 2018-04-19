@@ -7,9 +7,7 @@ The nexus repository cleaner performs the following tasks:
 
  
 ## Configuration
-
-The cleaner is deployed into the sdlc namespace and requires the following:
-
+The cleaner is deployed into the sdlc namespace as a cronjob and requires the following:
 * nexus-cleaner secret in the sdlc namespace 
 * nexus-cleaner service account
 * list-pods cluster role
@@ -25,4 +23,8 @@ The cleaner is deployed into the sdlc namespace and requires the following:
 1. Replace variables in .credentials with the correct values for your nexus repository
 1. Run create_secret.sh   
 1. Run kubectl create -f ./k8/
+
+
+## How to check when the next cronjob runs?
+1. kubectl get cronjob -n sdlc 
 
