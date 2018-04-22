@@ -4,9 +4,9 @@ metadata:
   name: nexus-cleaner
   namespace: sdlc
 spec:
-  schedule: "0 6 * * *"
-  successfulJobsHistoryLimit: 10
-  failedJobsHistoryLimit: 10
+  schedule: "0 20 * * *"
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 7
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -18,7 +18,7 @@ spec:
               image: darumatic/nexus-cleaner:3.0
               env:
               - name: KEEP_LIMIT
-                value: "500"
+                value: "300"
               - name: DOCKER_REGISTRY
                 value: "localhost:5000"
               volumeMounts:
